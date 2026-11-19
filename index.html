@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Şevval Kısacık">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f9d94">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap">
 <style>
@@ -286,6 +287,437 @@ try{speechSynthesis.getVoices()}catch(e){}
 g.className='';g.innerHTML='<button class="big go" id="go">Başla</button>';$('#go').onclick=()=>start(0);
 <\/script></body></html>
 </script>
+<script type="text/plain" id="bpm-src"><!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B P M Harf Oyunu</title>
+<style>
+:root{--bg:#fff7e6;--card:#ffffff;--ink:#2d2a26;--muted:#7a7268;--b:#e5484d;--p:#2f7de1;--m:#2fa84f;--ok:#2fa84f;--bad:#e5484d;--line:#f0dfbf;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1b16;--card:#2b261f;--ink:#f5efe6;--muted:#b4a999;--line:#4a4033}}
+:root[data-theme="dark"]{--bg:#1f1b16;--card:#2b261f;--ink:#f5efe6;--muted:#b4a999;--line:#4a4033}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Comic Sans MS","Trebuchet MS",Arial,sans-serif;display:flex;justify-content:center}
+.app{width:100%;max-width:520px;display:flex;flex-direction:column;padding:14px;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:18px}
+.bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#f5a623;transition:width .3s}
+.card{flex:1;background:var(--card);border:3px solid var(--line);border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center;min-height:0}
+.pic{font-size:clamp(90px,28vw,150px);line-height:1;transition:transform .2s}
+.pic.pop{animation:pop .5s}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.ask{font-size:clamp(18px,5vw,24px);font-weight:bold}
+.word{font-size:clamp(28px,9vw,44px);font-weight:bold;min-height:1.3em;letter-spacing:2px}
+.word b{color:var(--ok);font-size:1.25em}
+.msg{min-height:1.5em;font-size:20px;color:var(--muted)}
+.say{border:0;background:#f5a623;color:#fff;border-radius:30px;padding:10px 22px;font-size:18px;font-family:inherit}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.row button{aspect-ratio:1;border:0;border-radius:50%;color:#fff;font-family:inherit;font-weight:bold;font-size:clamp(44px,14vw,72px);box-shadow:0 6px 0 rgba(0,0,0,.25);transition:transform .08s}
+.row button:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.row button:disabled{opacity:.55}
+.B{background:var(--b)}.P{background:var(--p)}.M{background:var(--m)}
+.next{border:0;background:var(--ok);color:#fff;border-radius:16px;padding:14px;font-size:22px;font-family:inherit;font-weight:bold;display:none}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+.chips{display:flex;gap:8px;justify-content:center}
+.chips button{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:6px 14px;font-size:15px;font-family:inherit}
+.chips button.on{background:#f5a623;border-color:#f5a623;color:#fff}
+.word .dots{font-size:18px;color:var(--muted);letter-spacing:4px}
+.end{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.end .big{font-size:90px}
+.end h2{margin:0;font-size:30px}
+.end button{border:0;background:#f5a623;color:#fff;border-radius:16px;padding:14px 28px;font-size:22px;font-family:inherit;font-weight:bold}
+.star{position:fixed;font-size:28px;pointer-events:none;animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translateY(-160px) rotate(40deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="top"><div id="round">1 / 10</div><div id="score">⭐ 0</div></div>
+ <div class="bar"><i id="fill"></i></div>
+ <div class="chips" id="chips"><button data-m="1">1 hece</button><button data-m="2" class="on">1–2 hece</button><button data-m="all">Hepsi</button></div>
+ <div class="card" id="card">
+  <div class="pic" id="pic"></div>
+  <div class="ask">Bu nedir? Adını söyle!</div>
+  <button class="say" id="say">🔊 Dinle</button>
+  <div class="word" id="word"></div>
+  <div class="msg" id="msg">Hangi harfle başlıyor?</div>
+ </div>
+ <div class="row" id="row">
+  <button class="B" data-l="B">B</button>
+  <button class="P" data-l="P">P</button>
+  <button class="M" data-l="M">M</button>
+ </div>
+ <button class="next" id="next">Sıradaki ➜</button>
+ <div class="end" id="end">
+  <div class="big" id="endpic">🏆</div>
+  <h2 id="endtxt"></h2>
+  <button id="again">Tekrar oyna</button>
+ </div>
+</div>
+<script>
+var OLD=[["🍯","bal"],["🎈","balon"],["🔋","pil"],["🍰","pasta"],["🕯️","mum"],["👶","bebek"],["🍌","muz"],["✂️","makas"],["👢","bot"],["🧀","peynir"],["🐒","maymun"],["🐟","balık"],["🐼","panda"],["🐧","penguen"],["🌶️","biber"],["🍄","mantar"],["🪓","balta"],["☁️","bulut"],["🥛","bardak"],["🔵","mavi"],["🦉","baykuş"],["🚩","bayrak"],["🌽","mısır"],["🍕","pizza"],["🏍️","motor"],["📦","paket"],["😷","maske"],["🟣","mor"],["🦠","mikrop"],["🔪","bıçak"],["🧊","buz"],["🩷","pembe"],["🍚","pirinç"],["🦵","bacak"],["👃","burun"],["☝️","parmak"]];
+var DATA=`🍯 bal
+🎈 balon
+🐟 balık
+🐳 balina
+🪓 balta
+🥛 bardak
+👶 bebek
+🌶️ biber
+🚲 bisiklet
+🚩 bayrak
+🦉 baykuş
+☁️ bulut
+🧊 buz
+👃 burun
+🦵 bacak
+👢 bot
+🔪 bıçak
+💻 bilgisayar
+🎨 boya
+🏡 bahçe
+🎫 bilet
+🏢 bina
+👨 baba
+🎍 bambu
+🛁 banyo
+🧳 bavul
+⚪ beyaz
+🧠 beyin
+5️⃣ beş
+1️⃣ bir
+🐛 böcek
+🐂 boğa
+🦬 bizon
+🦯 baston
+💈 berber
+🥦 brokoli
+🌾 buğday
+🧩 bulmaca
+🪃 bumerang
+🔍 büyüteç
+🥖 baget
+🏀 basketbol
+💐 buket
+🔘 buton
+🩰 bale
+⛽ benzin
+🫛 bezelye
+🎃 balkabağı
+🍪 bisküvi
+🍼 biberon
+🦎 bukalemun
+🐦 bülbül
+📿 boncuk
+🎉 bayram
+🌸 bahar
+🐝 bal arısı
+📄 belge
+⚾ beyzbol
+🎳 bowling
+🥊 boks
+🎱 bilardo
+💃 balerin
+🏪 bakkal
+🏦 banka
+🪙 bozuk para
+👚 bluz
+👙 bikini
+🎺 bando
+🥁 bateri
+🕊️ barış
+🌉 boğaz
+🌥️ bulutlu
+🏔️ buzul
+🌨️ boran
+♈ burç
+➗ bölme
+🎣 balıkçı
+🏇 binici
+💂 bekçi
+👀 bak
+⏳ bekle
+👉 bu
+📍 burada
+🐃 bufalo
+🐍 boa
+🥩 biftek
+🖍️ boya kalemi
+🏸 badminton
+⛸️ buz pateni
+🪕 banjo
+🪘 bongo
+📢 bağır
+🧙 büyücü
+👍 beğen
+🥿 babet
+🍬 bonbon
+🍔 burger
+🌱 bitki
+🔔 bildirim
+🔗 bağlantı
+🍽️ bulaşık
+💾 bellek
+🧱 blok
+🔶 baklava dilimi
+👩 bayan
+🧑‍🌾 bahçıvan
+🧑‍🔬 bilim insanı
+🧑‍🎨 boyacı
+🤿 balıkadam
+🥉 bronz
+🥇 birinci
+🩹 bandaj
+🐮 buzağı
+🥸 bıyık
+💵 banknot
+👁️ bakış
+♨️ buhar
+🍰 pasta
+🔋 pil
+🐼 panda
+🐧 penguen
+🍕 pizza
+📦 paket
+🩷 pembe
+🍚 pirinç
+☝️ parmak
+🛝 park
+👖 pantolon
+🌼 papatya
+🦜 papağan
+🥔 patates
+🪟 pencere
+🧀 peynir
+🛂 pasaport
+💰 para
+🧸 pelüş
+💎 pırlanta
+🧺 piknik
+🎹 piyano
+🧥 palto
+🤡 palyaço
+🌴 palmiye
+🐆 pantera
+🪂 paraşüt
+🧴 parfüm
+🧚 peri
+🧑‍✈️ pilot
+🏓 pinpon
+🏖️ plaj
+💿 plak
+👮 polis
+🛍️ poşet
+🤴 prens
+👸 prenses
+🛼 paten
+♟️ piyon
+🧭 pusula
+🐾 pati
+🍆 patlıcan
+🍊 portakal
+🫓 pide
+🥞 pankek
+🍿 patlamış mısır
+🥤 pipet
+💯 puan
+😱 panik
+🏳️ pes
+🛻 pikap
+♻️ plastik
+📮 posta
+👞 pabuç
+🦸 pelerin
+💨 puf
+🥧 pay
+🛢️ petrol
+🍛 pilav
+💥 patlama
+🥳 parti
+💸 pahalı
+🚉 peron
+🛣️ pist
+🔌 priz
+🍮 puding
+🍖 pirzola
+🍟 patates kızartması
+🧃 portakal suyu
+📅 pazartesi
+🏤 postane
+🃏 poker
+😔 pişman
+💪 pazu
+🤝 paylaş
+🎭 pantomim
+✨ pırıl
+🎂 pandispanya
+➕ pozitif
+🥅 penaltı
+🖼️ portre
+👛 portmone
+🌟 parlak
+🚓 polis arabası
+📫 posta kutusu
+🕯️ mum
+🍌 muz
+✂️ makas
+🐒 maymun
+🍄 mantar
+🔵 mavi
+🌽 mısır
+🏍️ motor
+😷 maske
+🟣 mor
+🦠 mikrop
+🍝 makarna
+🥭 mango
+🎤 mikrofon
+✉️ mektup
+🍈 melon
+🔎 mercek
+💬 mesaj
+🧲 mıknatıs
+🕌 minare
+🎵 müzik
+🏛️ müze
+🔬 mikroskop
+⚙️ makine
+🩱 mayo
+🖋️ mürekkep
+🪜 merdiven
+🚇 metro
+👼 melek
+🐜 minik
+🐱 miyav
+🦪 midye
+🦣 mamut
+😊 mutlu
+⚽ maç
+🥬 marul
+🥟 mantı
+🧁 muffin
+🏅 madalya
+⚖️ mahkeme
+🏬 mağaza
+🖥️ monitör
+🏞️ manzara
+💄 makyaj
+📖 masal
+♠️ maça
+🍳 mutfak
+📋 menü
+👗 moda
+👷 mühendis
+☕ mola
+🎼 melodi
+🏘️ mahalle
+🌳 meşe
+🍇 meyve
+🛋️ mobilya
+🪸 mercan
+🪚 marangoz
+🔮 misket
+☄️ meteor
+🍂 mevsim
+📱 mobil
+🚐 minibüs
+🐴 midilli
+🦌 maral
+🖱️ mouse
+🛒 market
+📐 mimar
+⛲ meydan
+🤔 merak
+👋 merhaba
+👌 mükemmel
+🫘 mercimek
+🌿 maydanoz
+🥣 mısır gevreği
+📏 metre
+🛵 mobilet
+🌺 mayıs
+😳 mahcup
+😢 mutsuz
+🪻 menekşe
+🧑‍🎤 müzisyen
+📧 mail
+🧑‍💼 müdür
+🧵 makara
+💍 mücevher
+🔑 maymuncuk
+📣 müjde
+🍃 meltem
+🏃 maraton
+💅 manikür
+🐤 minik civciv
+💙 mavi kalp
+💜 mor kalp
+😂 mizah
+🔩 metal
+🖨️ matbaa
+🧾 makbuz
+🧮 muhasebe`;
+var SYLFIX={mouse:1,mail:1,bowling:2};
+function syl(w){if(SYLFIX[w])return SYLFIX[w];var m=w.match(/[aeıioöuü]/g);return m?m.length:1}
+var W=DATA.split("\n").map(function(l){var i=l.indexOf(" ");var w=l.slice(i+1);return [l.slice(0,i),w,syl(w)]});
+var mode="2",seen={};
+function build(){
+ var pool=W.filter(function(x){return mode==="all"||x[2]<=parseInt(mode,10)});
+ var by={B:[],P:[],M:[]};
+ shuffle(pool).sort(function(a,b){return (seen[a[1]]?1:0)-(seen[b[1]]?1:0)}).forEach(function(x){var L=x[1].charAt(0).toUpperCase();if(by[L])by[L].push(x)});
+ var out=[],ks=["B","P","M"],k=0,guard=0;
+ while(out.length<N&&guard++<200){var arr=by[ks[k%3]];k++;if(arr.length)out.push(arr.shift())}
+ out.forEach(function(x){seen[x[1]]=1});
+ return shuffle(out);
+}
+var N=10,list,idx,score,locked,cur,mistakes;
+var $=function(i){return document.getElementById(i)};
+var ac=null;
+function beep(f,d,t){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.type=t||"sine";o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+function good(){beep(660,.15);setTimeout(function(){beep(880,.25)},150)}
+function bad(){beep(200,.3,"square")}
+function speak(t){try{var s=window.speechSynthesis;if(!s)return;s.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="tr-TR";u.rate=.8;s.speak(u)}catch(e){}}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function start(){list=build();idx=0;score=0;$("end").style.display="none";$("card").style.display="flex";$("row").style.display="grid";show()}
+function show(){cur=list[idx];locked=false;mistakes=0;
+ var rw=$("row");shuffle(Array.prototype.slice.call(rw.children)).forEach(function(b){rw.appendChild(b)});
+ $("round").textContent=(idx+1)+" / "+N;$("score").textContent="⭐ "+score;$("fill").style.width=(idx/N*100)+"%";
+ var p=$("pic");p.textContent=cur[0];p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");
+ $("word").textContent="";$("msg").textContent="Hangi harfle başlıyor?";$("next").style.display="none";
+ Array.prototype.forEach.call(document.querySelectorAll("#row button"),function(b){b.disabled=false});
+}
+function stars(x,y){for(var i=0;i<8;i++){var s=document.createElement("div");s.className="star";s.textContent=["⭐","✨","🌟"][i%3];s.style.left=(x+(Math.random()*120-60))+"px";s.style.top=(y+(Math.random()*40-20))+"px";document.body.appendChild(s);(function(e){setTimeout(function(){e.remove()},1000)})(s)}}
+function pick(e){
+ if(locked)return;var b=e.currentTarget,l=b.getAttribute("data-l");
+ var first=cur[1].charAt(0).toUpperCase();
+ if(l===first){locked=true;good();if(mistakes===0)score++;
+  var r=b.getBoundingClientRect();stars(r.left+r.width/2,r.top);
+  $("word").innerHTML="<b>"+first+"</b>"+cur[1].slice(1)+'<div class="dots">'+(cur[2]>6?cur[2]+" hece":new Array(cur[2]+1).join("● "))+'</div>';
+  $("msg").textContent="Aferin! 🎉";$("score").textContent="⭐ "+score;
+  Array.prototype.forEach.call(document.querySelectorAll("#row button"),function(x){x.disabled=true});
+  speak(cur[1]);
+  $("next").style.display="block";$("next").textContent=idx===N-1?"Bitir 🏁":"Sıradaki ➜";
+ }else{mistakes++;bad();b.disabled=true;$("msg").textContent="Tekrar dene! 💪";
+  var c=$("card");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake")}
+}
+Array.prototype.forEach.call(document.querySelectorAll("#row button"),function(b){b.addEventListener("click",pick)});
+$("say").addEventListener("click",function(){speak(cur[1])});
+$("next").addEventListener("click",function(){idx++;if(idx>=N){finish()}else show()});
+function finish(){$("fill").style.width="100%";$("card").style.display="none";$("row").style.display="none";$("next").style.display="none";$("end").style.display="flex";
+ $("endpic").textContent=score>=9?"🏆":score>=6?"🥳":"👏";
+ $("endtxt").textContent=N+" sorudan "+score+" tanesini ilk denemede bildin!";}
+$("again").addEventListener("click",start);
+Array.prototype.forEach.call(document.querySelectorAll("#chips button"),function(b){b.addEventListener("click",function(){mode=b.getAttribute("data-m");Array.prototype.forEach.call(document.querySelectorAll("#chips button"),function(x){x.classList.toggle("on",x===b)});start()})});
+start();
+<\/script>
+</body>
+</html>
+</script>
 <script>
 // Yeni oyun/uygulama eklemek için bu listeye bir satır eklemek yeterli.
 // Örnek: {title:"Ses Avı", desc:"Sesi bul ve eşleştir.", icon:"🎯", color:"#8fd3f4", url:"#ses-avi"}
@@ -295,7 +727,8 @@ const apps = [
   {title:"Ses eşleştir", desc:"Kelimenin ilk sesini bul.", icon:"🔊", color:"#ff8a73", url:"#ses-eslestir"},
   {title:"Dinle ve Bul", desc:"Yönergeyi dinle, doğru resmi bul.", icon:"👂", color:"#b7a6ff", url:"#dinle-bul"},
   {title:"Gürültüde sayı", desc:"Gürültü varken söylenen sayıyı bul.", icon:"🔢", color:"#9be3a8", url:"#gurultu-sayi"},
-  {title:"Gürültüde iki sayı", desc:"İki sayı arka arkaya söylenir, ikisini de bul.", icon:"🔣", color:"#f3b6ff", url:"#gurultu-iki"}
+  {title:"Gürültüde iki sayı", desc:"İki sayı arka arkaya söylenir, ikisini de bul.", icon:"🔣", color:"#f3b6ff", url:"#gurultu-iki"},
+  {title:"B P M harf oyunu", desc:"Resmin adını söyle, hangi harfle başladığını seç.", icon:"🎈", color:"#ffb3c1", url:"#bpm-oyun"}
 ];
 const box = document.getElementById('apps');
 apps.forEach(a=>{
@@ -308,6 +741,7 @@ apps.forEach(a=>{
   box.appendChild(el);
 });
 
+if('serviceWorker' in navigator){addEventListener('load',()=>{try{navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}});}
 const mail=document.getElementById('mail');
 mail.addEventListener('click',async e=>{
   e.preventDefault();
@@ -337,7 +771,7 @@ function show(id){
   const sc=mk('p','score'); sc.id='sc'; sc.setAttribute('aria-live','polite');
   const stage=mk('div'); stage.id='stage';
   if(games[id].frame){
-    const f=mk('iframe'); f.title=games[id].title; f.srcdoc=document.getElementById('dinle-src').textContent.replace(/<\\\/script/g,'<'+'/script');
+    const f=mk('iframe'); f.title=games[id].title; f.srcdoc=document.getElementById(games[id].src||'dinle-src').textContent.replace(/<\\\/script/g,'<'+'/script');
     f.style.cssText='width:100%;height:640px;height:min(900px,calc(100vh - 110px));height:min(900px,calc(100svh - 110px));min-height:640px;border:0;border-radius:24px;margin-top:8px;background:transparent';
     w.append(back,f); G.appendChild(w); return;
   }
@@ -453,7 +887,8 @@ function noiseRound(s,cnt,key){
     show();
 }
 const games={
-  'dinle-bul':{title:'Dinle ve Bul',frame:true,round(){}},
+  'dinle-bul':{title:'Dinle ve Bul',frame:true,src:'dinle-src',round(){}},
+  'bpm-oyun':{title:'B P M harf oyunu',frame:true,src:'bpm-src',round(){}},
   'gurultu-sayi':{title:'Gürültüde sayı',round(s){noiseRound(s,1,'gurultu-sayi');}},
   'gurultu-iki':{title:'Gürültüde iki sayı',round(s){noiseRound(s,2,'gurultu-iki');}},
   'kelime-bul':{title:'Resimli kelime bul',round(s){
