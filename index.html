@@ -724,6 +724,115 @@ start();
 </body>
 </html>
 </script>
+<script type="text/plain" id="ses-src"><!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ses Avcısı</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAF4FF;--card:#fff;--ink:#1F2A44;--mute:#56627F;--a:#7C5CFF;--ok:#2FAE8A;--sun:#FFC93C;--bad:#FF6B6B;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141A2E;--card:#222B47;--ink:#F2F5FF;--mute:#A9B3D2;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141A2E;--card:#222B47;--ink:#F2F5FF;--mute:#A9B3D2;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Baloo 2",system-ui,sans-serif;font-weight:500;padding:16px;max-width:720px;margin-inline:auto}
+header{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:1.9rem;margin:0;font-weight:700}
+#stars{background:var(--sun);color:#1F2A44;border-radius:99px;padding:4px 14px;font-weight:700}
+.tabs{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.tabs button{flex:1;min-width:104px;border:0;border-radius:99px;padding:9px 10px;font:inherit;font-weight:700;background:var(--card);color:var(--ink);cursor:pointer}
+.tabs button.on{background:var(--a);color:#fff}
+.vol{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:20px;padding:8px 14px;margin-bottom:12px}
+.vol input{flex:1;min-width:0}
+.vol button{border:0;border-radius:99px;padding:6px 14px;font:inherit;font-weight:700;background:var(--bg);color:var(--ink);cursor:pointer}
+.stage{background:var(--card);border-radius:28px;padding:16px;text-align:center}
+.bar{height:10px;border-radius:6px;background:var(--bg);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--sun);transition:width .3s}
+#q{margin:10px 0 0;color:var(--mute);min-height:2.6em}
+.big{width:190px;height:190px;border-radius:50%;border:0;background:var(--a);color:#fff;font:inherit;font-weight:700;font-size:1.6rem;cursor:pointer;margin:10px auto;display:block;transition:transform .1s}
+.big:active{transform:scale(.93)}
+.big.busy{background:var(--mute)}
+#sub{min-height:1.6em;margin:4px 0 8px;font-size:1.2rem}
+.ans{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
+.ans button{border:3px solid transparent;border-radius:24px;background:var(--bg);color:var(--ink);font:inherit;font-weight:700;padding:14px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ans button .e{font-size:3rem;line-height:1}
+.ans button .l{font-size:1.2rem}
+.ans button:disabled{opacity:.45;cursor:default}
+.ans button.win{border-color:var(--ok);transform:scale(1.06)}
+.ans button.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.end{display:none;padding:10px 0}
+.end .t{font-size:4rem}
+.end h2{margin:4px 0 12px}
+.end button{border:0;border-radius:99px;background:var(--ok);color:#fff;font:inherit;font-weight:700;font-size:1.2rem;padding:10px 22px;margin:4px;cursor:pointer}
+details{background:var(--card);border-radius:20px;padding:10px 14px;margin-top:12px;color:var(--mute)}
+summary{font-weight:700;color:var(--ink);cursor:pointer}
+details li{margin:4px 0}
+</style></head>
+<body>
+<header><h1>🦻 Ses Avcısı</h1><div id="stars">⭐ 0</div></header>
+<div class="tabs" id="tabs"></div>
+<div class="vol"><span aria-hidden="true">🔉</span><input id="vol" type="range" min="10" max="100" value="60" aria-label="Ses seviyesi"><span aria-hidden="true">🔊</span><button id="test">Deneme sesi</button></div>
+<div class="stage" id="stage">
+ <div class="bar"><i id="fill"></i></div>
+ <p id="q"></p>
+ <div id="play">
+  <button class="big" id="go">🔊<br>Dinle</button>
+  <div id="sub"></div>
+  <div class="ans" id="ans"></div>
+ </div>
+ <div class="end" id="end"><div class="t" id="et">🏆</div><h2 id="eh"></h2><button id="again">Tekrar oyna</button><button id="nxt">Sonraki seviye ➜</button></div>
+</div>
+<details><summary>Yetişkin için notlar</summary>
+<ul>
+<li>Oyun çocuk ve yetişkinle birlikte oynanmak için hazırlandı. Dinleme becerilerini eğlenceli bir şekilde çalıştırır, işitme testi yerine geçmez.</li>
+<li>Başlamadan önce ses seviyesini çocuğun rahat duyacağı düzeye ayarlayın. “Deneme sesi” düğmesi bunun içindir. İşitme cihazı veya implantı açık ve çalışıyor olmalı.</li>
+<li>Sessiz bir ortamda, cihaz hoparlöre yakın tutularak oynayın. Çocuğa sesin geldiği anı ekrandan değil kulaktan ayırt ettirmek için ekranı göstermeden “Dinle”ye siz basabilirsiniz.</li>
+<li>Seviyeler basitten zora doğrudur: ses var mı → kaç ses → uzun/kısa → ince/kalın → hızlı/yavaş. Çocuk 8 sorunun çoğunu bilince bir sonrakine geçin.</li>
+<li>Yanlış cevapta ses otomatik tekrar çalar. Çocuğa “Bir daha dinleyelim” demeniz yeterli, ceza veya düzeltme gerekmez. Tamamlanan her tur için çocuğu övün.</li>
+<li>Çocuk sürekli yanılıyorsa veya duymadığını gösteriyorsa odyolog/terapistinize haber verin.</li>
+</ul></details>
+<script>
+var LV=[
+ {n:'1 · Ses var mı?',t:'Ses duyarsan “Duydum”a, duymazsan “Duymadım”a bas.',a:[['yes','👂','Duydum'],['no','🤫','Duymadım']]},
+ {n:'2 · Kaç ses?',t:'Kaç kere ses geldi? Say ve seç.',a:[['1','●','1'],['2','●●','2'],['3','●●●','3']]},
+ {n:'3 · Uzun mu kısa mı?',t:'Ses uzun muydu, kısa mıydı?',a:[['uzun','🚂','Uzun'],['kısa','🐜','Kısa']]},
+ {n:'4 · İnce mi kalın mı?',t:'İnce ses kuşun, kalın ses ayının sesi. Hangisiydi?',a:[['ince','🐦','İnce ses'],['kalın','🐻','Kalın ses']]},
+ {n:'5 · Hızlı mı yavaş mı?',t:'Sesler hızlı mı geldi, yavaş mı? Tavşan hızlı, kaplumbağa yavaş.',a:[['hızlı','🐰','Hızlı'],['yavaş','🐢','Yavaş']]}
+];
+var R=8,lv=0,trials=[],ti=0,score=0,tries=0,played=false,busy=false,total=0;
+var $=function(i){return document.getElementById(i)};
+var ctx=null,master=null,vol=.6;
+function ac(){if(!ctx){var C=window.AudioContext||window.webkitAudioContext;ctx=new C();master=ctx.createGain();master.gain.value=vol;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume();return ctx}
+function tone(f,t,d,gv){var c=ac(),o=c.createOscillator(),o2=c.createOscillator(),g=c.createGain(),g2=c.createGain();o.type='triangle';o.frequency.value=f;o2.type='sine';o2.frequency.value=f*2;g2.gain.value=.35;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(master);var a=c.currentTime+t,m=gv||.8;g.gain.setValueAtTime(0,a);g.gain.linearRampToValueAtTime(m,a+.015);g.gain.setValueAtTime(m,a+Math.max(.02,d-.04));g.gain.linearRampToValueAtTime(0,a+d);o.start(a);o2.start(a);o.stop(a+d+.03);o2.stop(a+d+.03)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function play(l,a){var t=0,i;
+ if(l===0){if(a==='yes')tone(1000,.5,1.0);t=2}
+ else if(l===1){var n=parseInt(a,10);for(i=0;i<n;i++)tone(800,.3+i*.6,.2);t=.3+n*.6+.3}
+ else if(l===2){var d=a==='uzun'?2:.3;tone(900,.3,d);t=d+.6}
+ else if(l===3){tone(a==='ince'?1800:450,.3,1);t=1.6}
+ else{var gap=a==='hızlı'?.22:.85;for(i=0;i<4;i++)tone(800,.3+i*gap,.12);t=.3+4*gap+.3}
+ return t}
+function mkTrials(l){var k=LV[l].a.map(function(x){return x[0]}),out=[];while(out.length<R)out=out.concat(shuffle(k));return out.slice(0,R)}
+function tabs(){var b=$('tabs');b.innerHTML='';LV.forEach(function(v,i){var x=document.createElement('button');x.textContent=v.n;if(i===lv)x.className='on';x.onclick=function(){if(!busy)startLevel(i)};b.appendChild(x)})}
+function startLevel(l){lv=l;trials=mkTrials(l);ti=0;score=0;$('end').style.display='none';$('play').style.display='block';$('q').textContent=LV[l].t;tabs();buildAns();trial()}
+function buildAns(){var a=$('ans');a.innerHTML='';LV[lv].a.forEach(function(x){var b=document.createElement('button');b.setAttribute('data-k',x[0]);b.innerHTML='<span class="e">'+x[1]+'</span><span class="l">'+x[2]+'</span>';b.onclick=function(){answer(b)};a.appendChild(b)})}
+function setAns(on){Array.prototype.forEach.call($('ans').children,function(b){b.disabled=!on;b.classList.remove('win','shake')})}
+function trial(){tries=0;played=false;busy=false;$('fill').style.width=(ti/R*100)+'%';$('sub').textContent='Dinle düğmesine bas';setAns(false);$('go').classList.remove('busy')}
+function doPlay(){if(busy)return;busy=true;$('go').classList.add('busy');$('sub').textContent='👂 Dinle…';setAns(false);var d=play(lv,trials[ti]);setTimeout(function(){busy=false;played=true;$('go').classList.remove('busy');$('sub').textContent='Şimdi seç!';setAns(true)},d*1000)}
+function answer(b){if(!played||busy)return;var ok=b.getAttribute('data-k')===String(trials[ti]);
+ if(ok){if(tries===0){score++;total++;$('stars').textContent='⭐ '+total}played=false;setAns(false);b.classList.add('win');$('sub').textContent='Aferin! 🎉';tone(660,0,.15,.4);tone(990,.15,.3,.4);setTimeout(function(){ti++;if(ti>=R)finish();else trial()},1400)}
+ else{tries++;b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');$('sub').textContent='Bir daha dinleyelim 🔁';played=false;setTimeout(doPlay,900)}}
+function finish(){$('fill').style.width='100%';$('play').style.display='none';$('end').style.display='block';$('et').textContent=score>=7?'🏆':score>=5?'🥳':'👏';$('eh').textContent=R+' sorudan '+score+' tanesini ilk denemede bildin!';$('nxt').style.display=lv<LV.length-1?'inline-block':'none'}
+$('go').onclick=doPlay;
+$('again').onclick=function(){startLevel(lv)};
+$('nxt').onclick=function(){startLevel(lv+1)};
+$('vol').oninput=function(){vol=this.value/100;if(master)master.gain.value=vol};
+$('test').onclick=function(){tone(1000,0,.8)};
+startLevel(0);
+<\/script>
+</body></html>
+</script>
 <script>
 // Yeni oyun/uygulama eklemek için bu listeye bir satır eklemek yeterli.
 // Örnek: {title:"Ses Avı", desc:"Sesi bul ve eşleştir.", icon:"🎯", color:"#8fd3f4", url:"#ses-avi"}
@@ -734,7 +843,8 @@ const apps = [
   {title:"Dinle ve Bul", desc:"Yönergeyi dinle, doğru resmi bul.", icon:"👂", color:"#b7a6ff", url:"#dinle-bul"},
   {title:"Gürültüde sayı", desc:"Gürültü varken söylenen sayıyı bul.", icon:"🔢", color:"#9be3a8", url:"#gurultu-sayi"},
   {title:"Gürültüde iki sayı", desc:"İki sayı arka arkaya söylenir, ikisini de bul.", icon:"🔣", color:"#f3b6ff", url:"#gurultu-iki"},
-  {title:"B P M harf oyunu", desc:"Resmin adını söyle, hangi harfle başladığını seç.", icon:"🎈", color:"#ffb3c1", url:"#bpm-oyun"}
+  {title:"B P M harf oyunu", desc:"Resmin adını söyle, hangi harfle başladığını seç.", icon:"🎈", color:"#ffb3c1", url:"#bpm-oyun"},
+  {title:"Ses Avcısı", desc:"Ses var mı, kaç ses, uzun mu kısa mı, ince mi kalın mı? Birlikte dinleme oyunu.", icon:"🦻", color:"#a8e6cf", url:"#ses-avcisi"}
 ];
 const box = document.getElementById('apps');
 apps.forEach(a=>{
@@ -895,6 +1005,7 @@ function noiseRound(s,cnt,key){
 const games={
   'dinle-bul':{title:'Dinle ve Bul',frame:true,src:'dinle-src',round(){}},
   'bpm-oyun':{title:'B P M harf oyunu',frame:true,src:'bpm-src',round(){}},
+  'ses-avcisi':{title:'Ses Avcısı',frame:true,src:'ses-src',round(){}},
   'gurultu-sayi':{title:'Gürültüde sayı',round(s){noiseRound(s,1,'gurultu-sayi');}},
   'gurultu-iki':{title:'Gürültüde iki sayı',round(s){noiseRound(s,2,'gurultu-iki');}},
   'kelime-bul':{title:'Resimli kelime bul',round(s){
