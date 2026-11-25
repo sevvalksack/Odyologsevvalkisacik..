@@ -835,6 +835,158 @@ startLevel(0);
 <\/script>
 </body></html>
 </script>
+<script type="text/plain" id="gcumle-src"><!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gürültüde Cümle</title>
+<style>
+:root{--bg:#f3f6f4;--card:#ffffff;--ink:#14302b;--mute:#5a6f6a;--line:#d5e0dc;--accent:#0f7a6b;--accent-ink:#ffffff;--ok:#1d7a3a;--bad:#b3392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a18;--card:#172624;--ink:#e6f1ee;--mute:#9bb3ad;--line:#2a3f3b;--accent:#4fd1bd;--accent-ink:#06211d;--ok:#6fdc90;--bad:#ff8c7d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1a18;--card:#172624;--ink:#e6f1ee;--mute:#9bb3ad;--line:#2a3f3b;--accent:#4fd1bd;--accent-ink:#06211d;--ok:#6fdc90;--bad:#ff8c7d;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Atkinson Hyperlegible","Trebuchet MS",Verdana,sans-serif;min-height:100%}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.7rem;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-weight:700;margin-bottom:6px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:90px}
+button{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:12px 14px;cursor:pointer;min-height:48px}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.big{width:100%;font-size:1.25rem;padding:18px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ok{border-color:var(--ok);color:var(--ok)}
+.bad{border-color:var(--bad);color:var(--bad)}
+input[type=range]{width:100%;accent-color:var(--accent);height:32px}
+.snr{display:flex;justify-content:space-between;align-items:baseline}
+.snr b{font-size:1.6rem}
+.sentence{min-height:3.2em;font-size:1.35rem;font-weight:700;padding:14px;border:2px dashed var(--line);border-radius:10px;margin:12px 0;display:flex;align-items:center}
+.sentence.hidden{color:var(--mute);font-weight:400;font-size:1rem}
+.stats{display:flex;gap:10px}
+.stats div{flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:8px}
+.stats b{display:block;font-size:1.4rem}
+.hist{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
+.hist i{width:16px;height:16px;border-radius:4px;display:block}
+.small{color:var(--mute);font-size:.9rem}
+.sw{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:400}
+.sw input{width:22px;height:22px;accent-color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<h1>Gürültüde Cümle</h1>
+<p class="sub">Öğrenci arka plandaki gürültüye rağmen cümleyi duyup tekrar eder. Öğretmen doğru ya da yanlış işaretler.</p>
+
+<div class="panel">
+<label>Gürültü türü</label>
+<div class="row seg" id="types">
+<button data-t="white" aria-pressed="false">Beyaz</button>
+<button data-t="pink" aria-pressed="true">Pembe</button>
+<button data-t="hum" aria-pressed="false">Sınıf uğultusu</button>
+</div>
+<div class="snr" style="margin-top:14px"><label for="snr" style="margin:0">Cümle / gürültü farkı</label><b id="snrv">+6 dB</b></div>
+<input id="snr" type="range" min="-10" max="15" step="1" value="6">
+<div class="small">Sağa: cümle daha belirgin (kolay). Sola: gürültü daha yüksek (zor).</div>
+<div class="sw"><input id="adapt" type="checkbox" checked><label for="adapt" style="margin:0;font-weight:400">Otomatik zorluk: doğruda 2 dB zorlaşsın, yanlışta 2 dB kolaylaşsın</label></div>
+<div class="sw"><input id="rate" type="checkbox"><label for="rate" style="margin:0;font-weight:400">Daha yavaş konuş</label></div>
+</div>
+
+<div class="panel">
+<button class="big" id="play">Gürültüyü başlat ve cümleyi çal</button>
+<div class="sentence hidden" id="sent">Cümle burada görünecek (öğrenciye göstermeyin).</div>
+<div class="row">
+<button id="again" style="flex:1">Tekrar çal</button>
+<button id="reveal" style="flex:1">Cümleyi göster</button>
+</div>
+<div class="row" style="margin-top:10px">
+<button class="ok" id="right" style="flex:1">Doğru bildi</button>
+<button class="bad" id="wrong" style="flex:1">Yanlış</button>
+</div>
+<div class="row" style="margin-top:10px"><button id="stop" style="flex:1">Gürültüyü durdur</button></div>
+</div>
+
+<div class="panel">
+<div class="stats">
+<div><b id="sc">0</b>Doğru</div>
+<div><b id="tot">0</b>Toplam</div>
+<div><b id="avg">–</b>Ort. fark (dB)</div>
+</div>
+<div class="hist" id="hist" aria-label="Sonuç geçmişi"></div>
+<div class="row" style="margin-top:12px"><button id="reset">Sıfırla</button></div>
+</div>
+
+<p class="small">Not: Ses düzeyi cihazın hoparlörüne ve ses ayarına bağlıdır, dB değerleri yaklaşıktır ve klinik ölçüm yerine geçmez. Cümleyi cihazın Türkçe sesi okur; ses yoksa cihaz ayarlarından Türkçe ses paketini yükleyin.</p>
+</main>
+
+<script>
+const S=["Kedi masanın altında uyuyor.","Çocuklar bahçede top oynuyor.","Annem akşam yemeği hazırladı.","Yarın okula erken gideceğiz.","Kırmızı araba hızla geçti.","Öğretmen tahtaya bir resim çizdi.","Babam gazeteyi masanın üstüne koydu.","Kuşlar sabah ağaçta ötüyor.","Ali yeni defterini çantasına koydu.","Hava bugün çok güzel.","Arkadaşım bana bir kitap verdi.","Küçük kız çiçekleri suladı.","Bu akşam sinemaya gidelim.","Sınıfta herkes sessizce dinliyor.","Deniz kenarında uzun bir yürüyüş yaptık.","Büyükannem bize kek yaptı.","Sarı kuş pencereye kondu.","Otobüs on dakika geç geldi.","Mutfaktan güzel kokular geliyor.","Çocuk balonu elinden kaçırdı.","Dedem bahçede domates topluyor.","Yağmur sabaha kadar yağdı.","Servis okulun önünde bekliyor.","Kitabı çantamda unuttum.","Kardeşim her akşam resim yapar.","Pazardan taze elma aldık.","Köpek kapının önünde havlıyor.","Teneffüste hep birlikte oynadık.","Okulun bahçesinde büyük bir ağaç var.","Annem bana sıcak çorba getirdi.","Mavi kalemi masanın üstüne bıraktım.","Yaz tatilinde dedemin köyüne gideceğiz.","Bugün matematik sınavı olacak.","Kırmızı eşarplı kadın otobüse bindi.","Çocuklar parkta salıncakta sallanıyor.","Akşam yemeğinden sonra çay içtik.","Telefonum çantanın içinde çaldı.","Balıkçı sabah erkenden denize açıldı.","Öğrenciler sırayla kitap okudu.","Kapıyı yavaşça kapatır mısın?","Bahçedeki gül çok güzel kokuyor.","Ayşe yeni ayakkabılarını giydi.","Trenle şehrin öbür ucuna gittik.","Sütü buzdolabına koymayı unutma.","Hafta sonu piknik yapacağız.","Küçük kedi süt içmek istiyor.","Tahtadaki yazıyı defterime yazdım.","Dün gece çok yağmur yağdı.","Abim bana bisiklet sürmeyi öğretti.","Halamlar bu akşam bize gelecek.","Çiçekçi dükkanını erkenden açtı.","Pencereyi aç, oda çok sıcak.","Sınıfın duvarında renkli resimler var.","Mehmet bugün okula geç kaldı.","Bakkaldan ekmek ve peynir aldım.","Gökyüzünde beyaz bulutlar var.","Ördekler gölde yüzüyor.","Müzik dersinde yeni bir şarkı öğrendik.","Sofrayı hep birlikte hazırladık.","Yeşil çanta sandalyenin üstünde duruyor.","Doktor bana bol su içmemi söyledi.","Kuzu çayırda otluyor.","Elif ödevini zamanında bitirdi.","Komşumuzun yeni bir kedisi var.","Kış gelmeden kalın montumu çıkardım.","Çocuklar kardan adam yaptı.","Marketten sebze ve meyve aldık.","Babam her sabah gazete okur.","Oyuncakları kutuya geri koyduk.","Bu yemeğin tadı çok güzel.","Uçak yavaşça pistten kalktı.","Hemşire çocuğa gülümsedi.","Rüzgar çamaşırları uçurdu.","Sarı otobüs durakta durdu.","Arkadaşlarımla futbol oynamayı seviyorum.","Kütüphanede herkes sessizce çalışıyor.","Annem pencerenin önüne çiçek koydu.","Yarın doğum günümü kutlayacağız.","Küçük çocuk annesinin elini tuttu.","Fırından taze ekmek kokusu geliyor.","Öğretmenimiz bize güzel bir masal okudu.","Kapının zili üç kez çaldı.","Deniz kıyısında kum kale yaptık.","Ağaçtaki elmalar olgunlaştı.","Hasta olduğum için okula gidemedim.","Siyah kedi çatıdan atladı.","Anneannem bize örgü yelek ördü.","Yolda giderken eski bir arkadaşımı gördüm.","Bugün hava çok soğuk.","Çocuklar resim dersinde boya yaptı.","Sokağın köşesinde küçük bir market var.","Dişlerimi her akşam fırçalarım.","Büyük köpek küçük çocuğu korkuttu.","Tatilde dağa çıkıp çadır kurduk.","Fatma kardeşine hediye aldı.","Yemekten önce ellerini yıka.","Gece boyunca yıldızlar parladı.","Hepimiz sınıfta bayrak töreni yaptık."];
+const $=id=>document.getElementById(id);
+let ctx,src,gain,type="pink",order=[],idx=-1,cur="",answered=true,snr=6,hist=[],snrs=[];
+
+function buf(t){
+ const n=ctx.sampleRate*4,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);
+ if(t==="white"){for(let i=0;i<n;i++)d[i]=Math.random()*2-1}
+ else{let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<n;i++){const w=Math.random()*2-1;
+   b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;
+   d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}}
+ return b}
+function startNoise(){
+ if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();
+ if(ctx.state==="suspended")ctx.resume();
+ stopNoise();
+ src=ctx.createBufferSource();src.buffer=buf(type==="white"?"white":"pink");src.loop=true;
+ let node=src;
+ if(type==="hum"){
+  const bp=ctx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=700;bp.Q.value=.6;
+  const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=3.5;lg.gain.value=.25;
+  const am=ctx.createGain();am.gain.value=.75;lfo.connect(lg);lg.connect(am.gain);lfo.start();
+  src.connect(bp);bp.connect(am);node=am;src._lfo=lfo}
+ gain=ctx.createGain();node.connect(gain);gain.connect(ctx.destination);
+ setGain();src.start()}
+function stopNoise(){if(src){try{src.stop();if(src._lfo)src._lfo.stop()}catch(e){}src=null}}
+function setGain(){if(gain)gain.gain.value=Math.min(1,.25*Math.pow(10,-snr/20))}
+function speak(){
+ if(!cur)return;speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(cur);u.lang="tr-TR";u.volume=1;u.rate=$("rate").checked?.8:.95;
+ const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith("tr"));if(v)u.voice=v;
+ speechSynthesis.speak(u)}
+function next(){
+ if(idx<0||idx>=order.length-1){order=S.map((_,i)=>i).sort(()=>Math.random()-.5);idx=-1}
+ cur=S[order[++idx]];answered=false;
+ const s=$("sent");s.textContent="Cümle gizli. Öğrenci tekrar etsin.";s.className="sentence hidden"}
+function mark(ok){
+ if(answered||!cur){return}
+ answered=true;hist.push(ok);snrs.push(snr);
+ if($("adapt").checked){snr=Math.max(-10,Math.min(15,snr+(ok?-2:2)));$("snr").value=snr;showSnr();setGain()}
+ draw()}
+function showSnr(){$("snrv").textContent=(snr>0?"+":"")+snr+" dB"}
+function draw(){
+ const c=hist.filter(Boolean).length;
+ $("sc").textContent=c;$("tot").textContent=hist.length;
+ $("avg").textContent=snrs.length?(snrs.reduce((a,b)=>a+b,0)/snrs.length).toFixed(1):"–";
+ $("hist").innerHTML=hist.map(h=>`<i style="background:var(${h?"--ok":"--bad"})" title="${h?"doğru":"yanlış"}"></i>`).join("")}
+$("play").onclick=()=>{if(answered)next();startNoise();setTimeout(speak,700)};
+$("again").onclick=()=>{if(!cur)return;if(!src)startNoise();speak()};
+$("reveal").onclick=()=>{if(!cur)return;const s=$("sent");s.textContent=cur;s.className="sentence"};
+$("right").onclick=()=>{const w=!answered;mark(true);if(w)$("reveal").click()};
+$("wrong").onclick=()=>{const w=!answered;mark(false);if(w)$("reveal").click()};
+$("stop").onclick=()=>{stopNoise();speechSynthesis.cancel()};
+$("reset").onclick=()=>{hist=[];snrs=[];draw()};
+$("snr").oninput=e=>{snr=+e.target.value;showSnr();setGain()};
+$("types").onclick=e=>{const b=e.target.closest("button");if(!b)return;type=b.dataset.t;
+ document.querySelectorAll("#types button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+ if(src)startNoise()};
+if("speechSynthesis" in window)speechSynthesis.getVoices();
+<\/script>
+</body>
+</html>
+</script>
 <script>
 // Yeni oyun/uygulama eklemek için bu listeye bir satır eklemek yeterli.
 // Örnek: {title:"Ses Avı", desc:"Sesi bul ve eşleştir.", icon:"🎯", color:"#8fd3f4", url:"#ses-avi"}
@@ -846,7 +998,8 @@ const apps = [
   {title:"Gürültüde sayı", desc:"Gürültü varken söylenen sayıyı bul.", icon:"🔢", color:"#9be3a8", url:"#gurultu-sayi"},
   {title:"Gürültüde iki sayı", desc:"İki sayı arka arkaya söylenir, ikisini de bul.", icon:"🔣", color:"#f3b6ff", url:"#gurultu-iki"},
   {title:"B P M harf oyunu", desc:"Resmin adını söyle, hangi harfle başladığını seç.", icon:"🎈", color:"#ffb3c1", url:"#bpm-oyun"},
-  {title:"Ses Avcısı", desc:"Ses var mı, kaç ses, uzun mu kısa mı, ince mi kalın mı? Birlikte dinleme oyunu.", icon:"🦻", color:"#a8e6cf", url:"#ses-avcisi"}
+  {title:"Ses Avcısı", desc:"Ses var mı, kaç ses, uzun mu kısa mı, ince mi kalın mı? Birlikte dinleme oyunu.", icon:"🦻", color:"#a8e6cf", url:"#ses-avcisi"},
+  {title:"Gürültüde cümle", desc:"Gürültü varken söylenen cümleyi dinle ve tekrar et.", icon:"💬", color:"#ffd6a5", url:"#gurultu-cumle"}
 ];
 const box = document.getElementById('apps');
 apps.forEach(a=>{
@@ -1008,6 +1161,7 @@ const games={
   'dinle-bul':{title:'Dinle ve Bul',frame:true,src:'dinle-src',round(){}},
   'bpm-oyun':{title:'B P M harf oyunu',frame:true,src:'bpm-src',round(){}},
   'ses-avcisi':{title:'Ses Avcısı',frame:true,src:'ses-src',round(){}},
+  'gurultu-cumle':{title:'Gürültüde cümle',frame:true,src:'gcumle-src',round(){}},
   'gurultu-sayi':{title:'Gürültüde sayı',round(s){noiseRound(s,1,'gurultu-sayi');}},
   'gurultu-iki':{title:'Gürültüde iki sayı',round(s){noiseRound(s,2,'gurultu-iki');}},
   'kelime-bul':{title:'Resimli kelime bul',round(s){
