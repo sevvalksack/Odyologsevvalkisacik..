@@ -937,9 +937,11 @@ function buf(t){
    d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}}
  return b}
 function startNoise(){
- if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();
- if(ctx.state==="suspended")ctx.resume();
+ try{if(navigator.audioSession)navigator.audioSession.type="ambient"}catch(e){}
+ if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.onstatechange=keep}
+ if(ctx.state!=="running")ctx.resume();
  stopNoise();
+ wd=setInterval(keep,120);
  src=ctx.createBufferSource();src.buffer=buf(type==="white"?"white":"pink");src.loop=true;
  let node=src;
  if(type==="hum"){
@@ -949,13 +951,15 @@ function startNoise(){
   src.connect(bp);bp.connect(am);node=am;src._lfo=lfo}
  gain=ctx.createGain();node.connect(gain);gain.connect(ctx.destination);
  setGain();src.start()}
-function stopNoise(){if(src){try{src.stop();if(src._lfo)src._lfo.stop()}catch(e){}src=null}}
+function keep(){if(src&&ctx&&ctx.state!=="running")ctx.resume().catch(()=>{})}
+let wd=null;
+function stopNoise(){clearInterval(wd);if(src){try{src.stop();if(src._lfo)src._lfo.stop()}catch(e){}src=null}}
 function setGain(){if(gain)gain.gain.value=Math.min(1,.25*Math.pow(10,-snr/20))}
 function speak(){
  if(!cur)return;speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(cur);u.lang="tr-TR";u.volume=1;u.rate=$("rate").checked?.8:.95;
+ const u=new SpeechSynthesisUtterance(cur);u.lang="tr-TR";u.volume=1;u.rate=$("rate").checked?.8:.95;u.onstart=u.onboundary=u.onend=u.onerror=()=>{keep();setTimeout(keep,60);setTimeout(keep,250)};
  const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith("tr"));if(v)u.voice=v;
- speechSynthesis.speak(u)}
+ speechSynthesis.speak(u);setTimeout(keep,50);setTimeout(keep,300)}
 function next(){
  if(idx<0||idx>=order.length-1){order=S.map((_,i)=>i).sort(()=>Math.random()-.5);idx=-1}
  cur=S[order[++idx]];answered=false;
